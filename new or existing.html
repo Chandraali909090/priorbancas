@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Menu Calon Nasabah</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f9ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      color: #0070c0;
+      margin-bottom: 30px;
+    }
+
+    button {
+      background-color: #0070c0;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+      transform: translateY(-2px);
+    }
+
+    a {
+      color: #0070c0;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 id="sapaan">Menu Nasabah</h1>
+
+    <button onclick="handleNasabahBaru()">Nasabah Baru</button>
+    <button onclick="handleEditStatus()">Edit Status Nasabah</button>
+
+    <br>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const namaPBS = localStorage.getItem("namaPBS");
+      if (namaPBS) {
+        document.getElementById("sapaan").innerText = `Selamat Datang, ${namaPBS}!`;
+      }
+    });
+
+    function handleNasabahBaru() {
+      window.location.href = "file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/coba%20input%20data.html";
+    }
+
+    function handleEditStatus() {
+      window.location.href = "file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/DVupdatestatus.htm";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/login.html";
+    }
+  </script>
+
+</body>
+</html>
