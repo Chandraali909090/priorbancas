@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login PBS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #f5f8fa;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-container h3 {
+      color: #0049a3;
+      margin-bottom: 24px;
+      font-size: 22px;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 10px 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .login-container input:focus {
+      border-color: #0072ce;
+      outline: none;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #0072ce;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-container button:hover {
+      background-color: #005bb5;
+    }
+
+    .login-container p {
+      font-size: 12px;
+      color: #333;
+      margin-top: 16px;
+    }
+
+    .login-container a {
+      color: #0072ce;
+      text-decoration: none;
+    }
+
+    .login-container a:hover {
+      text-decoration: underline;
+    }
+
+    #hasil {
+      color: red;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h3>Login PBS</h3>
+    <form id="loginForm" autocomplete="off">
+      <input type="text" id="username" placeholder="Username" required autocomplete="off">
+      <input type="password" id="password" placeholder="Password" required autocomplete="new-password">
+      <button type="submit">Login</button>
+    </form>
+    <p id="hasil"></p>
+    <p>Belum punya akun?
+      <a href="file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/registerpbs.html">Daftar di sini</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const url = "https://script.google.com/macros/s/AKfycbxMQasfr1ipxapTFQKCHKg6ri5qs0rWrQCqY8mYK1VUoJySCE57wW3NmA0PxBi7ERUo/exec" +
+                  `?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            localStorage.setItem("namaPBS", data.namaPBS);
+            localStorage.setItem("kodePBS", data.kodePBS);
+            window.location.href = "file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/new%20or%20existing.html";
+          } else {
+            document.getElementById("hasil").innerText = data.message;
+          }
+        })
+        .catch(err => {
+          document.getElementById("hasil").innerText = "Gagal menghubungi server.";
+          console.error(err);
+        });
+    });
+  </script>
+</body>
+</html>
