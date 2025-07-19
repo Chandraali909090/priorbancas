@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Form Registrasi PBS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #0070c0;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005a9e;
+    }
+    .link-login {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .link-login a {
+      color: #0070c0;
+      text-decoration: none;
+    }
+    .link-login a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Form Registrasi PBS</h2>
+    <form id="regForm">
+      <label>Username :</label>
+      <input type="text" name="kode" required>
+
+      <label>Password :</label>
+      <input type="password" name="nama" required>
+
+      <label>Kanwil :</label>
+<select name="kanwil" required>
+  <option value="">-- Pilih Kanwil --</option>
+  <option>BANDUNG</option>
+  <option>BANJARMASIN</option>
+  <option>DENPASAR</option>
+  <option>JAKARTA 1</option>
+  <option>JAKARTA 2</option>
+  <option>JAKARTA 3</option>
+  <option>JAYAPURA</option>
+  <option>LAMPUNG</option>
+  <option>MAKASSAR</option>
+  <option>MALANG</option>
+  <option>MANADO</option>
+  <option>MEDAN</option>
+  <option>PALEMBANG</option>
+  <option>PADANG</option>
+  <option>PEKANBARU</option>
+  <option>SEMARANG</option>
+  <option>SURABAYA</option>
+  <option>YOGYAKARTA</option>
+</select>
+
+
+      <label>Nama PBS :</label>
+      <input type="text" name="username" required>
+
+      <label>Kode PBS :</label>
+      <input type="text" name="password" required>
+
+      <button type="submit">Submit</button>
+    </form>
+    <p id="message"></p>
+
+    <!-- Link ke halaman login -->
+    <div class="link-login">
+      <p>Sudah punya akun? <a href="file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/login.html">Login di sini</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("regForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+
+      const data = new URLSearchParams();
+      data.append("kode", form.kode.value);
+      data.append("nama", form.nama.value);
+      data.append("kanwil", form.kanwil.value);
+      data.append("username", form.username.value);
+      data.append("password", form.password.value);
+
+      fetch("https://script.google.com/macros/s/AKfycbyO7vFCvP5AfNCwdWHtcd0WsHs3aFI1YZpk3BLAcy4bLS-nnKL-krAkGCBpJBXh4AY5/exec", {
+        method: "POST",
+        body: data
+      })
+      .then(response => response.json())
+      .then(json => {
+        document.getElementById("message").textContent = "Data berhasil dikirim!";
+        form.reset();
+      })
+      .catch(err => {
+        document.getElementById("message").textContent = "Gagal mengirim data!";
+      });
+    });
+  </script>
+</body>
+</html>
