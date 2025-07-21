@@ -3,70 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <title>Form Input Nasabah</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #00529b, #0070c0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00529b;
+      margin-bottom: 25px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input[readonly] {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    button {
+      background-color: #00529b;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #003f77;
+    }
+
+    a {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      text-decoration: none;
+      color: #00529b;
+      font-weight: bold;
+    }
+
+    a:hover {
+      color: #003f77;
+    }
+  </style>
 </head>
 <body>
-  <h2>Form Input Data Nasabah</h2>
+  <div class="form-container">
+    <h2>Form Input Data Nasabah</h2>
 
-  <form id="form">
-    <input name="namaPBS" id="namaPBS" placeholder="Nama PBS" required readonly><br><br>
-    <input name="kodePBS" id="kodePBS" placeholder="Kode PBS" required readonly><br><br>
-    <input name="namaReferral" placeholder="Nama Pe-Referral" required><br><br>
-    <input name="pnReferral" placeholder="PN Pe-Referral" required><br><br>
-    <input name="namaNasabah" placeholder="Nama Nasabah" required><br><br>
+    <form id="form">
+      <input name="namaPBS" id="namaPBS" placeholder="Nama PBS" required readonly>
+      <input name="kodePBS" id="kodePBS" placeholder="Kode PBS" required readonly>
+      <input name="namaReferral" placeholder="Nama Pe-Referral" required>
+      <input name="pnReferral" placeholder="PN Pe-Referral" required>
+      <input name="namaNasabah" placeholder="Nama Nasabah" required>
 
-    <select name="namaProduk" required>
-      <option value="" disabled selected>Pilih Produk</option>
-      <option value="AMORA 10th">AMORA 10th</option>
-      <option value="AMORA 5th">AMORA 5th</option>
-      <option value="AMORA Sekaligus">AMORA Sekaligus</option>
-      <option value="AURORA PLUS">AURORA PLUS</option>
-      <option value="DAVESTERA">DAVESTERA</option>
-    </select><br><br>
+      <select name="namaProduk" required>
+        <option value="" disabled selected>Pilih Produk</option>
+        <option value="AMORA 10th">AMORA 10th</option>
+        <option value="AMORA 5th">AMORA 5th</option>
+        <option value="AMORA Sekaligus">AMORA Sekaligus</option>
+        <option value="AURORA PLUS">AURORA PLUS</option>
+        <option value="DAVESTERA">DAVESTERA</option>
+      </select>
 
-    <input id="estAPE" name="estAPE" placeholder="Estimated APE" required><br><br>
+      <input type="hidden" id="estAPE" name="estAPE" value="0">
 
-    <select name="statusNasabah" required>
-      <option value="" disabled selected>Status Nasabah</option>
-      <option value="CALL/MEET">CALL/MEET</option>
-      <option value="PROSPECTING">PROSPECTING</option>
-      <option value="PRESENTATION">PRESENTATION</option>
-      <option value="CLOSING">CLOSING</option>
-      <option value="LOSE">LOSE</option>
-    </select><br><br>
+      <select name="statusNasabah" required>
+        <option value="" disabled selected>Status Nasabah</option>
+        <option value="CALL/MEET">CALL/MEET</option>
+        <option value="PROSPECTING">PROSPECTING</option>
+        <option value="PRESENTATION">PRESENTATION</option>
+        <option value="CLOSING">CLOSING</option>
+        <option value="LOSE">LOSE</option>
+      </select>
 
-    <button type="submit">Kirim</button>
-  </form>
+      <button type="submit">Kirim</button>
+    </form>
 
-  <br>
-  <a href="file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/new%20or%20existing.html">⬅️ Kembali ke Menu Utama</a>
+    <a href="file:///C:/Users/1282902017/Documents/Project%20Reporting%20PBS/new%20or%20existing.html">⬅️ Kembali ke Menu Utama</a>
+  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("namaPBS").value = localStorage.getItem("namaPBS") || "";
       document.getElementById("kodePBS").value = localStorage.getItem("kodePBS") || "";
+      document.getElementById("estAPE").value = "0";
     });
-
-    const estAPEInput = document.getElementById("estAPE");
-    estAPEInput.addEventListener("input", function(e) {
-      let angka = e.target.value.replace(/[^\d]/g, "");
-      if (!angka) {
-        e.target.value = "";
-        return;
-      }
-      e.target.value = formatRupiah(angka);
-    });
-
-    function formatRupiah(angka) {
-      return "Rp" + angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
 
     document.getElementById("form").addEventListener("submit", function(e) {
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
-
-      const angkaMurni = estAPEInput.value.replace(/[^\d]/g, "");
-      formData.set("estAPE", angkaMurni);
 
       fetch("https://script.google.com/macros/s/AKfycbxGioEJfm-KxWDZrtIxULG5hQxSNoQt-d7ckD_52JixTWbrAlb_O3EfgyPJ36V_2j8-/exec", {
         method: "POST",
@@ -78,6 +130,7 @@
         form.reset();
         document.getElementById("namaPBS").value = localStorage.getItem("namaPBS") || "";
         document.getElementById("kodePBS").value = localStorage.getItem("kodePBS") || "";
+        document.getElementById("estAPE").value = "0";
       })
       .catch(error => alert("Gagal: " + error));
     });
