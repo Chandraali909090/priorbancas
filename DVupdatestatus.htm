@@ -94,11 +94,11 @@
   </table>
 
   <script>
-    const url = "https://script.google.com/macros/s/AKfycbwQEskcFAPOG0hu2LesZ6syP5onuuIAcMklLH5zpfRK0DIv4VbM4nWJ1iIq3RJAwEhg/exec";
+    const url = "https://script.google.com/macros/s/AKfycbxw2pDlraYK5fdaLAZ25MZj4tO2buRLhFyWGT46DfBElf9b9wW67MHfLZwGlb5XT_1Q/exec";
     const namaPBS = localStorage.getItem("namaPBS");
     const kodePBS = localStorage.getItem("kodePBS");
 
-    const flowStatus = ["CALL/MEET", "PROSPECTING", "PRESENTATION", "ILLUSTRATION", "CLOSING", "LOSE"];
+    const flowStatus = ["CALL/MEET", "PROSPECTING", "PRESENTATION", "ILLUSTRATION", "FINALISASI"];
     let allData = [];
 
     if (!namaPBS || !kodePBS) {
@@ -141,63 +141,117 @@
       });
     }
 
-    function populateTable(data) {
-      const tbody = document.querySelector("#dataTable tbody");
-      tbody.innerHTML = "";
+  function populateTable(data) {
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
 
-      data.forEach(row => {
-        const tr = document.createElement("tr");
+  const selectedColumns = [0, 1, 2, 3, 4, 5, 6, 7, 8]; // PN Pe-Referral → Status Nasabah
 
-        row.forEach((cell, index) => {
-          const td = document.createElement("td");
+  data.forEach(row => {
+    const tr = document.createElement("tr");
 
-          if (index === 6) {
-            // Format tanggal pada kolom "Date"
-            const date = new Date(cell);
-            const options = { day: '2-digit', month: 'long', year: 'numeric' };
-            td.textContent = isNaN(date.getTime()) ? cell : date.toLocaleDateString('id-ID', options);
-          } else if (index === 8) {
-            // Kolom "Status Nasabah"
-            const currentStatus = cell;
-            const currentIndex = flowStatus.indexOf(currentStatus);
-            const select = document.createElement("select");
+    selectedColumns.forEach(index => {
+      const td = document.createElement("td");
 
-            flowStatus.forEach((status, idx) => {
-              const option = document.createElement("option");
-              option.value = status;
-              option.textContent = status;
+      if (index === 6) {
+        // Format tanggal di kolom "Date"
+        const date = new Date(row[index]);
+        const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        td.textContent = isNaN(date.getTime()) ? row[index] : date.toLocaleDateString('id-ID', options);
 
-              if (idx <= currentIndex) {
-                option.disabled = true;
-              }
-              if (status === currentStatus) {
-                option.selected = true;
-              }
+      } else if (index === 8) {
+  const currentStatus = row[index];
 
-              select.appendChild(option);
-            });
+  // ⛔ Jika status sudah CLOSING atau LOSE, tampilkan sebagai teks biasa (tidak editable)
+  if (currentStatus === "CLOSING" || currentStatus === "LOSE") {
+    td.textContent = currentStatus;
+    td.style.fontWeight = "bold";
+    td.style.color = currentStatus === "CLOSING" ? "green" : "red";
+  } else {
+    // ✅ Jika status belum final, tampilkan dropdown
+    const currentIndex = flowStatus.indexOf(currentStatus);
+    const select = document.createElement("select");
 
-            select.addEventListener("change", () => {
-              const selectedValue = select.value;
-              const confirmChange = confirm(`Ubah status "${row[4]}" menjadi "${selectedValue}"?`);
-              if (confirmChange) {
-                updateStatus(row[0], row[1], row[4], selectedValue);
-              } else {
-                select.value = currentStatus;
-              }
-            });
+    flowStatus.forEach((status, idx) => {
+      const option = document.createElement("option");
+      option.value = status;
+      option.textContent = status;
 
-            td.appendChild(select);
+      if (idx <= currentIndex) option.disabled = true;
+      if (status === currentStatus) option.selected = true;
+
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", () => {
+      let selectedValue = select.value;
+
+      if (selectedValue === "FINALISASI") {
+        const pilihan = document.createElement("select");
+        pilihan.innerHTML = `
+          <option value="" disabled selected>Pilih Finalisasi</option>
+          <option value="CLOSING">CLOSING</option>
+          <option value="LOSE">LOSE</option>
+        `;
+        pilihan.style.marginTop = "10px";
+
+        const container = document.createElement("div");
+        const label = document.createElement("label");
+        label.textContent = "Status FINALISASI memerlukan konfirmasi. Pilih status akhir:";
+        container.appendChild(label);
+        container.appendChild(document.createElement("br"));
+        container.appendChild(pilihan);
+
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.top = "50%";
+        modal.style.left = "50%";
+        modal.style.transform = "translate(-50%, -50%)";
+        modal.style.background = "#fff";
+        modal.style.border = "1px solid #ccc";
+        modal.style.padding = "20px";
+        modal.style.zIndex = "9999";
+        modal.appendChild(container);
+
+        document.body.appendChild(modal);
+
+        pilihan.addEventListener("change", () => {
+          const finalStatus = pilihan.value;
+          const confirmChange = confirm(`Ubah status menjadi "${finalStatus}"?`);
+          if (confirmChange) {
+            updateStatus(namaPBS, kodePBS, row[4], finalStatus);
           } else {
-            td.textContent = cell;
+            select.value = currentStatus;
           }
-
-          tr.appendChild(td);
+          document.body.removeChild(modal);
         });
 
-        tbody.appendChild(tr);
-      });
-    }
+        select.value = currentStatus;
+        return;
+      }
+
+      const confirmChange = confirm(`Ubah status "${row[4]}" menjadi "${selectedValue}"?`);
+      if (confirmChange) {
+        updateStatus(namaPBS, kodePBS, row[4], selectedValue);
+      } else {
+        select.value = currentStatus;
+      }
+    });
+
+    td.appendChild(select);
+  }
+}
+ else {
+        td.textContent = row[index];
+      }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
 
     function updateStatus(namaPBS, kodePBS, namaNasabah, statusBaru) {
       const formData = new FormData();
