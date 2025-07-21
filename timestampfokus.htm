@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Nasabah</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .top-nav {
+      margin-bottom: 15px;
+    }
+    .top-nav a {
+      background-color: #0077b6;
+      color: white;
+      padding: 8px 12px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .top-nav a:hover {
+      background-color: #005f8a;
+    }
+    input[type="text"] {
+      padding: 6px;
+      font-size: 13px;
+      width: 250px;
+      margin-right: 10px;
+    }
+    .search-container {
+      margin-bottom: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: left;
+    }
+    th {
+      background: #0077b6;
+      color: white;
+    }
+    select {
+      font-size: 12px;
+      padding: 4px;
+    }
+    option:disabled {
+      background-color: #e0e0e0;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-nav">
+    <a href="new or existing.html">⬅ Kembali ke Menu Utama</a>
+  </div>
+
+  <h1>Data Nasabah</h1>
+
+  <div class="search-container">
+    <input type="text" id="searchReferral" placeholder="Cari Nama Pe-Referral..." list="listReferral" />
+    <input type="text" id="searchNasabah" placeholder="Cari Nama Nasabah..." list="listNasabah" />
+    <datalist id="listReferral"></datalist>
+    <datalist id="listNasabah"></datalist>
+  </div>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Nama PBS</th>
+        <th>Kode PBS</th>
+        <th>Nama Pe-Referral</th>
+        <th>PN Pe-Referral</th>
+        <th>Nama Nasabah</th>
+        <th>Produk</th>
+        <th>Date</th>
+        <th>EstAPE</th>
+        <th>Status Terbaru</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const url = "https://script.google.com/macros/s/AKfycbxw2pDlraYK5fdaLAZ25MZj4tO2buRLhFyWGT46DfBElf9b9wW67MHfLZwGlb5XT_1Q/exec";
+    const namaPBS = localStorage.getItem("namaPBS");
+    const kodePBS = localStorage.getItem("kodePBS");
+
+    const flowStatus = ["CALL/MEET", "PROSPECTING", "PRESENTATION", "ILLUSTRATION", "FINALISASI"];
+    let allData = [];
+
+    if (!namaPBS || !kodePBS) {
+      alert("Silakan login ulang.");
+    } else {
+      fetch(`${url}?namaPBS=${encodeURIComponent(namaPBS)}&kodePBS=${encodeURIComponent(kodePBS)}`)
+        .then(res => res.json())
+        .then(data => {
+          allData = data;
+          populateSuggestions(data);
+          populateTable(data);
+        })
+        .catch(err => {
+          console.error("Gagal ambil data:", err);
+          alert("Gagal memuat data nasabah.");
+        });
+    }
+
+    function populateSuggestions(data) {
+      const referralSet = new Set();
+      const nasabahSet = new Set();
+      data.forEach(row => {
+        referralSet.add(row[2]); // Nama Pe-Referral
+        nasabahSet.add(row[4]);  // Nama Nasabah
+      });
+
+      const listReferral = document.getElementById("listReferral");
+      const listNasabah = document.getElementById("listNasabah");
+
+      referralSet.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        listReferral.appendChild(option);
+      });
+
+      nasabahSet.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        listNasabah.appendChild(option);
+      });
+    }
+
+  function populateTable(data) {
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
+
+  const selectedColumns = [0, 1, 2, 3, 4, 5, 6, 7, 8]; // PN Pe-Referral → Status Nasabah
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+    selectedColumns.forEach(index => {
+      const td = document.createElement("td");
+
+      if (index === 6) {
+        // Format tanggal di kolom "Date"
+        const date = new Date(row[index]);
+        const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        td.textContent = isNaN(date.getTime()) ? row[index] : date.toLocaleDateString('id-ID', options);
+
+      } else if (index === 8) {
+  const currentStatus = row[index];
+
+  // ⛔ Jika status sudah CLOSING atau LOSE, tampilkan sebagai teks biasa (tidak editable)
+  if (currentStatus === "CLOSING" || currentStatus === "LOSE") {
+    td.textContent = currentStatus;
+    td.style.fontWeight = "bold";
+    td.style.color = currentStatus === "CLOSING" ? "green" : "red";
+  } else {
+    // ✅ Jika status belum final, tampilkan dropdown
+    const currentIndex = flowStatus.indexOf(currentStatus);
+    const select = document.createElement("select");
+
+    flowStatus.forEach((status, idx) => {
+      const option = document.createElement("option");
+      option.value = status;
+      option.textContent = status;
+
+      if (idx <= currentIndex) option.disabled = true;
+      if (status === currentStatus) option.selected = true;
+
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", () => {
+      let selectedValue = select.value;
+
+      if (selectedValue === "FINALISASI") {
+        const pilihan = document.createElement("select");
+        pilihan.innerHTML = `
+          <option value="" disabled selected>Pilih Finalisasi</option>
+          <option value="CLOSING">CLOSING</option>
+          <option value="LOSE">LOSE</option>
+        `;
+        pilihan.style.marginTop = "10px";
+
+        const container = document.createElement("div");
+        const label = document.createElement("label");
+        label.textContent = "Status FINALISASI memerlukan konfirmasi. Pilih status akhir:";
+        container.appendChild(label);
+        container.appendChild(document.createElement("br"));
+        container.appendChild(pilihan);
+
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.top = "50%";
+        modal.style.left = "50%";
+        modal.style.transform = "translate(-50%, -50%)";
+        modal.style.background = "#fff";
+        modal.style.border = "1px solid #ccc";
+        modal.style.padding = "20px";
+        modal.style.zIndex = "9999";
+        modal.appendChild(container);
+
+        document.body.appendChild(modal);
+
+        pilihan.addEventListener("change", () => {
+          const finalStatus = pilihan.value;
+          const confirmChange = confirm(`Ubah status menjadi "${finalStatus}"?`);
+          if (confirmChange) {
+            updateStatus(namaPBS, kodePBS, row[4], finalStatus);
+          } else {
+            select.value = currentStatus;
+          }
+          document.body.removeChild(modal);
+        });
+
+        select.value = currentStatus;
+        return;
+      }
+
+      const confirmChange = confirm(`Ubah status "${row[4]}" menjadi "${selectedValue}"?`);
+      if (confirmChange) {
+        updateStatus(namaPBS, kodePBS, row[4], selectedValue);
+      } else {
+        select.value = currentStatus;
+      }
+    });
+
+    td.appendChild(select);
+  }
+}
+ else {
+        td.textContent = row[index];
+      }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+    function updateStatus(namaPBS, kodePBS, namaNasabah, statusBaru) {
+      const formData = new FormData();
+      formData.append("namaPBS", namaPBS);
+      formData.append("kodePBS", kodePBS);
+      formData.append("namaNasabah", namaNasabah);
+      formData.append("statusBaru", statusBaru);
+
+      fetch(url, {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.text())
+      .then(response => {
+        if (response === "OK") {
+          alert("Status berhasil diperbarui.");
+          location.reload();
+        } else {
+          alert("Gagal memperbarui status: " + response);
+        }
+      })
+      .catch(err => {
+        console.error("Error update:", err);
+        alert("Terjadi kesalahan saat memperbarui status.");
+      });
+    }
+
+    document.getElementById("searchReferral").addEventListener("input", filterTable);
+    document.getElementById("searchNasabah").addEventListener("input", filterTable);
+
+    function filterTable() {
+      const referralVal = document.getElementById("searchReferral").value.toLowerCase();
+      const nasabahVal = document.getElementById("searchNasabah").value.toLowerCase();
+
+      const filtered = allData.filter(row =>
+        row[2].toLowerCase().includes(referralVal) &&
+        row[4].toLowerCase().includes(nasabahVal)
+      );
+
+      populateTable(filtered);
+    }
+  </script>
+</body>
+</html>
