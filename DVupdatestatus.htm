@@ -160,27 +160,27 @@
         td.textContent = isNaN(date.getTime()) ? row[index] : date.toLocaleDateString('id-ID', options);
 
       } else if (index === 8) {
-  const currentStatus = row[index];
+ 	 const currentStatus = row[index];
 
-  // ⛔ Jika status sudah CLOSING atau LOSE, tampilkan sebagai teks biasa (tidak editable)
-  if (currentStatus === "CLOSING" || currentStatus === "LOSE") {
-    td.textContent = currentStatus;
-    td.style.fontWeight = "bold";
-    td.style.color = currentStatus === "CLOSING" ? "green" : "red";
-  } else {
-    // ✅ Jika status belum final, tampilkan dropdown
-    const currentIndex = flowStatus.indexOf(currentStatus);
-    const select = document.createElement("select");
+	  // ⛔ Jika status sudah CLOSING atau LOSE, tampilkan sebagai teks biasa (tidak editable)
+  	if (currentStatus === "CLOSING" || currentStatus === "LOSE") {
+    	td.textContent = currentStatus;
+    	td.style.fontWeight = "bold";
+    	td.style.color = currentStatus === "CLOSING" ? "green" : "red";
+      } else {
+    	  // ✅ Jika status belum final, tampilkan dropdown
+    	const currentIndex = flowStatus.indexOf(currentStatus);
+    	const select = document.createElement("select");
 
-    flowStatus.forEach((status, idx) => {
-      const option = document.createElement("option");
-      option.value = status;
-      option.textContent = status;
+    	flowStatus.forEach((status, idx) => {
+      	const option = document.createElement("option");
+      	option.value = status;
+      	option.textContent = status;
 
-      if (idx <= currentIndex) option.disabled = true;
-      if (status === currentStatus) option.selected = true;
+      	if (idx <= currentIndex) option.disabled = true;
+      	if (status === currentStatus) option.selected = true;
 
-      select.appendChild(option);
+      	select.appendChild(option);
     });
 
     select.addEventListener("change", () => {
